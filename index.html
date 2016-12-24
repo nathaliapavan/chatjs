@@ -5,14 +5,17 @@
 	<link rel="stylesheet" type="text/css" href="/css/style.css" />
 </head>
 <body>
+	<!-- Formulário de acesso para inserir o nick -->
 	<div id="acesso_usuario">
 		<form id="login">
 			<input type="text" placeholder="Insira seu nick" name="apelido" id="apelido" />
 			<input type="submit" value="Entrar" />
 		</form>
 	</div>
+	<!-- Painel de mensagens e lista de users-->
 	<div id="sala_chat">
 		<div id="historico_mensagens"></div>
+		<select multiple="multiple" id="lista_usuarios"><option value="">Todos</option></select>
 		<form id="chat">
 			<input type="text" id="texto_mensagem" name="texto_mensagem" />
 			<input type="submit" value="Enviar" />
@@ -25,13 +28,17 @@
 <script type="text/javascript">
 	var socket = io.connect();
 
+	// ao enviar mensagem
 	$('form#chat').submit(function(e){
 		e.preventDefault();
+
+		// Evento acionado no servidor para o envio de mensagem
 		socket.emit('enviar mensagem', $(this).find('#texto_mensagem').val(), function(){
 			$('form#chat #texto_mensagem').val('');
 		});
 	});
 
+	// Resposta ao envio de mensagens do servidor
 	socket.on('atualizar mensagens', function(mensagem){
 		var mensagem_formatada = $("<p />").text(mensagem);
 		$('#historico_mensagens').append(mensagem_formatada);
@@ -40,11 +47,14 @@
 	$('form#login').submit(function(e){
 		e.preventDefault();
 
-		socket.emit('entrar', $(this).find(#apelido).val(), function(valido){
+		// Evento enviado quando o usuário insere um nick
+		socket.emit('entrar', $(this).find('#apelido').val(), function(valido){
 			if(valido){
+				// Abre painel principal se não existir nenhum nick
 				$('#acesso_usuario').hide();
 				$('#sala_chat').show();
 			}else{
+				// Apresenta mensagem que já existe um user com o mesmo nick
 				$('#acesso_usuario').val('');
 				alert('Esse nome já está sendo utilizado.');
 			}

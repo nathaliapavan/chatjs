@@ -35,6 +35,9 @@ form input[type='submit']{
 	background: #FFF;
 	border: 2px solid #45C5BF;
 	height: 550px;
+	float: left;
+	margin-bottom: 10px;
+	width: 75%;
 }
 
 #sala_chat{
@@ -53,4 +56,14 @@ form input[type='submit']{
 
 #acesso_usuario form{
 	margin: 0;
+}
+
+#historico_mensagens{
+	border-right: 0;
+}
+
+#lista_usuarios{
+	border-left: 1px solid #45C5BF;
+	height: 554px;
+	width: 20%;
 }
