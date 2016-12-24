@@ -38,16 +38,23 @@ io.on('connection', function(socket){
 
 			io.sockets.emit('atualizar usuarios', Object.keys(usuarios));
 			io.sockets.emit('atualizar mensagens', '[ ' + pegarDataAtual() + ' ]' + apelido + ' acabou de entrar na sala.');
-			
+
 			callback(true);
 		}else{
 			callback(false);
 		}
 	});
+
 	socket.on('enviar mensagem', function(mensagem_enviada, callback){
 		mensagem_enviada = '[ ' + pegarDataAtual() + ' ] ' + socket.apelido + ' diz: ' + mensagem_enviada;
 		io.sockets.emit('atualizar mensagens', mensagem_enviada);
 		callback();
+	});
+
+	socket.on('disconnect', function(){
+		delete usuarios[socket.apelido];
+		io.sockets.emit('atualizar usuarios', Object.keys(usuarios));
+		io.sockets.emit('atualizar mensagens', '[ ' + pegarDataAtual() + ' ]' + socket.apelido + ' saiu da sala');
 	});
 });
 

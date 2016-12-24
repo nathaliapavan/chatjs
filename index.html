@@ -60,5 +60,14 @@
 			}
 		});
 	});
+
+	socket.on('atualizar usuarios', function(usuarios){
+		$("#lista_usuarios").empty();
+		$("#lista_usuarios").append("<option value=''>Todos</option>");
+		$.each(usuarios, function(indice){
+			var opcao_usuario = $("<option />").text(usuarios[indice]);
+			$("#lista_usuarios").append(opcao_usuario);
+		});
+	});
 </script>
 </html>
