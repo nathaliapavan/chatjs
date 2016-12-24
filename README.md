@@ -1,2 +1,2 @@
 # chatjs
-Tutorial - Chat JS
+Tutorial Devmedia - Chat JS
