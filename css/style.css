@@ -67,3 +67,15 @@ form input[type='submit']{
 	height: 554px;
 	width: 20%;
 }
+
+#historico_mensagens .sistema{
+	background-color: #45C5BF;
+	color: #FFF;
+	font-weight: bold;
+}
+
+#historico_mensagens .privada{
+	background-color: #CCC;
+	color: #000;
+	font-weight: bold;
+}

@@ -2,6 +2,7 @@ var app = require('http').createServer(resposta); // cria servidor
 var fs = require('fs'); 
 var io = require('socket.io')(app); // socket.io
 var usuarios = []; 
+var ultimas_mensagens = [];
 
 app.listen(3000); // porta
 
@@ -36,8 +37,17 @@ io.on('connection', function(socket){
 			socket.apelido = apelido;
 			usuarios[apelido] = socket; // adiciona o nome do user à lista que está armazenada no server
 
+			for(indice in ultimas_mensagens){
+				socket.emit('atualizar mensagens', ultimas_mensagens[indice]);
+			}
+
+			var mensagem = '[ ' + pegarDataAtual() + ' ] ' + apelido + ' acabou de entrar na sala';
+			var obj_mensagem = {msg: mensagem, tipo: 'sistema'};
+
 			io.sockets.emit('atualizar usuarios', Object.keys(usuarios));
-			io.sockets.emit('atualizar mensagens', '[ ' + pegarDataAtual() + ' ]' + apelido + ' acabou de entrar na sala.');
+			io.sockets.emit('atualizar mensagens', obj_mensagem);
+
+			armazenaMensagem(obj_mensagem);
 
 			callback(true);
 		}else{
@@ -45,16 +55,37 @@ io.on('connection', function(socket){
 		}
 	});
 
-	socket.on('enviar mensagem', function(mensagem_enviada, callback){
-		mensagem_enviada = '[ ' + pegarDataAtual() + ' ] ' + socket.apelido + ' diz: ' + mensagem_enviada;
-		io.sockets.emit('atualizar mensagens', mensagem_enviada);
-		callback();
-	});
-
 	socket.on('disconnect', function(){
 		delete usuarios[socket.apelido];
+		var mensagem = '[ ' + pegarDataAtual() + ' ]' + socket.apelido + ' saiu da sala';
+		var obj_mensagem = {msg: mensagem, tipo: 'sistema'};
+
 		io.sockets.emit('atualizar usuarios', Object.keys(usuarios));
-		io.sockets.emit('atualizar mensagens', '[ ' + pegarDataAtual() + ' ]' + socket.apelido + ' saiu da sala');
+		io.sockets.emit('atualizar mensagens', obj_mensagem);
+
+		armazenaMensagem(obj_mensagem);
+	});
+
+	socket.on('enviar mensagem', function(dados, callback){
+		var mensagem_enviada = dados.msg;
+		var usuario = dados.usu;
+
+		if(usuario == null)
+			usuario = '';
+
+		mensagem_enviada = '[ ' + pegarDataAtual() + ' ]' + socket.apelido + ' diz: ' + mensagem_enviada;
+		var obj_mensagem = {msg: mensagem_enviada, tipo: ''};
+
+		if(usuario == ''){ // envia para todos os users
+			io.sockets.emit('atualizar mensagens', obj_mensagem);
+			armazenaMensagem(obj_mensagem);
+		}else{ // senão envia apenas para o user selecionado
+			obj_mensagem.tipo = 'privada';
+			socket.emit('atualizar mensagens', obj_mensagem);
+			usuarios[usuario].emit('atualizar mensagens', obj_mensagem);
+		}
+
+		callback();
 	});
 });
 
@@ -72,5 +103,13 @@ function pegarDataAtual(){
 	var dataFormatada = dia + '/' + mes + '/' + ano + ' ' + hora + ':' + minuto + ':' + segundo;
 
 	return dataFormatada;
+}
+
+function armazenaMensagem(mensagem){
+	if(ultimas_mensagens.legth > 5){
+		ultimas_mensagens.shift();
+	} 
+
+	ultimas_mensagens.push(mensagem);
 }
 

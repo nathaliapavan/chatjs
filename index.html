@@ -32,15 +32,23 @@
 	$('form#chat').submit(function(e){
 		e.preventDefault();
 
+		var mensagem = $(this).find("#texto_mensagem").val();
+		var usuario = $("#lista_usuarios").val();
+
 		// Evento acionado no servidor para o envio de mensagem
-		socket.emit('enviar mensagem', $(this).find('#texto_mensagem').val(), function(){
+		socket.emit('enviar mensagem', {msg: mensagem, usu: usuario}, function(){
 			$('form#chat #texto_mensagem').val('');
 		});
 	});
 
 	// Resposta ao envio de mensagens do servidor
-	socket.on('atualizar mensagens', function(mensagem){
-		var mensagem_formatada = $("<p />").text(mensagem);
+	//socket.on('atualizar mensagens', function(mensagem){
+	//	var mensagem_formatada = $("<p />").text(mensagem);
+	//	$('#historico_mensagens').append(mensagem_formatada);
+	//});
+
+	socket.on('atualizar mensagens', function(dados){
+		var mensagem_formatada = $("<p />").text(dados.msg).addClass(dados.tipo);
 		$('#historico_mensagens').append(mensagem_formatada);
 	});
 
